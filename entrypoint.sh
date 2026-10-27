@@ -48,6 +48,15 @@ export DUPLICATI__SERVER_DATAFOLDER="${DUPLICATI__SERVER_DATAFOLDER:-/data}"
 
 mkdir -p /data/source /data/backups
 
+# Duplicati 2.4 refuses to start if its data folder already exists with
+# group/other permissions (Railway mounts volumes 755). The wrapper
+# creates this folder tree itself on first boot, so restricting it is
+# safe and required: without this chmod the server crash-loops with
+# "The data folder '/data/' does not have secure permissions".
+# This is the manual equivalent of Duplicati's
+# 'duplicati-configure secure-datafolder' command.
+chmod 700 /data
+
 if [ -z "$(ls -A /data/source 2>/dev/null)" ]; then
   cat > /data/source/demo-notes.txt <<'EOF'
 Duplicati on Railway — demo source files
